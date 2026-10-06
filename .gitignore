@@ -3,3 +3,5 @@
 bin/
 obj/
 .vs/
+keyboard-settings.xml
+keyboard-settings.xml.tmp
