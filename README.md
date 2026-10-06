@@ -4,7 +4,7 @@ A small Windows tray app with configurable key bindings that activate when a sel
 
 ## Choose a keyboard and bindings
 
-1. Exit any older AppleKeySwap instance from its tray menu. Turn off PowerToys Keyboard Manager to avoid overlapping mappings.
+1. Do not use conflicting key remappers alongside this app.
 2. Run `AppleKeySwap.exe`. Settings opens automatically on the first run.
 3. Choose a keyboard from the automatically detected list. The list refreshes about every 1.5 seconds as devices connect or disconnect.
 4. Use **Add binding** and choose a **From key** and **To key**. Each source and destination can appear only once. A swap needs two rows, one for each direction.
@@ -17,6 +17,15 @@ Open Settings again by double-clicking the tray icon or choosing **Settings...**
 The **Command / Option preset** swaps left and right Windows/Command with left and right Alt/Option, preserving the original app's behavior. The default activation trigger is an Apple keyboard with USB ID `05AC:024F`. Choosing a detected device saves its specific device path. A disconnected selection stays in the list; if moving ports changes its path, select it again.
 
 The list may include virtual keyboards or multiple entries exposed by a receiver. Device identifiers distinguish otherwise identical names. Only keyboards reported by Windows Raw Input can be listed.
+
+## Windows on a Mac
+
+This app can also be useful for choosing how a Mac keyboard behaves in Windows. In Settings, select the keyboard Windows detects and configure Command, Option and other keys to suit your preferred layout. The Command / Option swap preset is optional.
+
+- **Boot Camp on an Intel Mac:** run the app inside Windows and select the built-in or connected keyboard. [Apple's Boot Camp guide](https://support.apple.com/guide/bootcamp-assistant/welcome/mac) covers running Windows on Intel-based Macs.
+- **Parallels or another virtual machine:** run the app inside Windows and select the keyboard exposed to the guest, which may be a virtual keyboard. Only key presses delivered to Windows can be remapped. Check the VM's own keyboard mappings and shortcut settings for conflicts; [Parallels can translate shortcuts or reserve them for macOS](https://docs.parallels.com/landing/pdfm-ug/v20-en-us/parallels-desktop-for-mac-20-users-guide/parallels-desktop-preferences-and-virtual-machine-settings/parallels-desktop-preferences/shortcuts-preferences).
+
+Mac and virtual-machine compatibility has not yet been tested. This is a Windows app; it does not remap keys in macOS. As with other setups, the selected keyboard activates bindings for all keyboards visible to Windows.
 
 ## Supported bindings
 
