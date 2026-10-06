@@ -2,6 +2,12 @@
 
 A small Windows tray app with configurable key bindings that activate when a selected keyboard is connected. No keyboard driver or installation is needed.
 
+## Download
+
+[Download AppleKeySwap.exe for Windows](https://github.com/jessewheelernz/keyboard-key-switch/releases/latest/download/AppleKeySwap.exe) or [view the latest release](https://github.com/jessewheelernz/keyboard-key-switch/releases/latest).
+
+Save the executable in a writable folder and double-click it to start. No installation is needed. This is an unsigned x64 Windows build; Windows may show an unrecognized-app warning. Settings are saved alongside the executable. Mac and virtual-machine compatibility has not yet been tested.
+
 ## Choose a keyboard and bindings
 
 1. Do not use conflicting key remappers alongside this app.
