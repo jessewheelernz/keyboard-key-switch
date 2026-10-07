@@ -18,7 +18,7 @@ Save the executable in a writable folder and double-click it to start. No instal
 
 **Bindings affect every keyboard while the selected keyboard is connected.** The selected keyboard is an activation trigger, not an input filter. Windows' low-level keyboard hook does not identify the source keyboard; this app does not provide per-device remapping.
 
-Open Settings again by double-clicking the tray icon or choosing **Settings...** from its menu. Remapping is suspended while Settings is open, making it possible to edit bindings without typing through them. Closing with Cancel discards changes.
+Open Settings again by double-clicking the tray icon or choosing **Settings...** from its menu. Saved bindings stay active while Settings is open. Edits apply only when you choose **Save and close**; Cancel discards them. Use **Pause remapping** from the tray menu if you want to pause while editing.
 
 The **Command / Option preset** swaps left and right Windows/Command with left and right Alt/Option, preserving the original app's behavior. The default activation trigger is an Apple keyboard with USB ID `05AC:024F`. Choosing a detected device saves its specific device path. A disconnected selection stays in the list; if moving ports changes its path, select it again.
 
@@ -37,7 +37,7 @@ Mac and virtual-machine compatibility has not yet been tested. This is a Windows
 
 Single keys: letters, digits, punctuation, left/right modifiers, function keys, navigation keys and common numpad keys. Fn keys, special firmware keys, Pause/Break, Print Screen, macros and multi-key destination shortcuts are not supported. Key names are Windows names; the Apple labels are also shown for Command and Option.
 
-Bindings are direct: A → B and B → C makes A send B, without applying the B → C rule to that injected event. Existing held mappings finish with their original destination when paused or when Settings opens. Release all keyboard keys before saving. Disconnecting the selected device releases any mapped keys still held.
+Bindings are direct: A → B and B → C makes A send B, without applying the B → C rule to that injected event. Existing held mappings finish with their original destination when paused. Release all keyboard keys before saving. Disconnecting the selected device releases any mapped keys still held.
 
 Settings are saved beside the executable in `keyboard-settings.xml`. They are personal and excluded from Git. The app needs write access to that folder. Clear all bindings and save to disable mapping without removing the keyboard selection.
 

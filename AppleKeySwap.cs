@@ -10,7 +10,7 @@ using Microsoft.Win32;
 
 static class AppleKeySwap {
     const int LAlt=0xA4, RAlt=0xA5, LWin=0x5B, RWin=0x5C;
-    static bool enabled, paused, editing; static Settings settings; static SettingsWindow window; static HashSet<int> physicalDown=new HashSet<int>(); static HashSet<int> released=new HashSet<int>();
+    static bool enabled, paused; static Settings settings; static SettingsWindow window; static HashSet<int> physicalDown=new HashSet<int>(); static HashSet<int> released=new HashSet<int>();
     static IntPtr hook;
     static IntPtr lastForeground;
     static HookProc callback=OnKey;
@@ -135,9 +135,8 @@ static class AppleKeySwap {
     }
     static void ShowSettings() {
         if(window!=null && !window.IsDisposed) { window.Show(); window.Activate(); return; }
-        editing=true; enabled=false;
         window=new SettingsWindow();
-        window.FormClosed+=(s,e)=>{ editing=false; window=null; Refresh(); };
+        window.FormClosed+=(s,e)=>{ window=null; Refresh(); };
         window.Show();
     }
     static void ReleaseMappedKeys() {
@@ -210,10 +209,10 @@ static class AppleKeySwap {
         lastForeground=foreground;
     }
     static void Refresh() {
-        bool connected=SelectedConnected(); bool wanted=!paused && !editing && connected && settings.Bindings.Count>0;
+        bool connected=SelectedConnected(); bool wanted=!paused && connected && settings.Bindings.Count>0;
         if(!connected) { enabled=false; ReleaseMappedKeys(); physicalDown.Clear(); }
         else if(held.Count==0 && physicalDown.Count==0) enabled=wanted;
-        tray.Text=paused?"Keyboard Key Switch: paused":editing?"Keyboard Key Switch: settings open":enabled?"Keyboard Key Switch: remapping":"Keyboard Key Switch: normal";
+        tray.Text=paused?"Keyboard Key Switch: paused":enabled?"Keyboard Key Switch: remapping":"Keyboard Key Switch: normal";
     }
     static IntPtr OnKey(int code,IntPtr message,IntPtr data) {
         if(code>=0) {
@@ -227,7 +226,7 @@ static class AppleKeySwap {
                         if(up) held.Remove(vk);
                         return (IntPtr)1;
                     }
-                } else if(enabled && !paused && !editing && !up && settings.Map(vk)!=vk) {
+                } else if(enabled && !paused && !up && settings.Map(vk)!=vk) {
                     target=settings.Map(vk);
                     if(SendKey(target,false)) {held[vk]=target; return (IntPtr)1;}
                 }
@@ -266,7 +265,7 @@ static class AppleKeySwap {
             layout.RowStyles.Add(new RowStyle(SizeType.Percent,100)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute,44)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute,48));
             layout.Controls.Add(new Label {Text="Activate bindings when this keyboard is connected",AutoSize=true},0,0);
             keyboards.Dock=DockStyle.Fill; keyboards.DropDownStyle=ComboBoxStyle.DropDownList; layout.Controls.Add(keyboards,0,1);
-            layout.Controls.Add(new Label {Text="Connected keyboards are detected automatically. These bindings affect ALL keyboards while the selected keyboard is connected. Remapping is suspended while this window is open.",Dock=DockStyle.Fill,ForeColor=Color.FromArgb(125,70,15)},0,2);
+            layout.Controls.Add(new Label {Text="Connected keyboards are detected automatically. These bindings affect ALL keyboards while the selected keyboard is connected. Saved bindings stay active while this window is open. Edits apply when saved.",Dock=DockStyle.Fill,ForeColor=Color.FromArgb(125,70,15)},0,2);
             status.Dock=DockStyle.Fill; layout.Controls.Add(status,0,3);
             grid.Dock=DockStyle.Fill; grid.AutoGenerateColumns=false; grid.AllowUserToAddRows=false; grid.AllowUserToDeleteRows=false; grid.RowHeadersVisible=false; grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect; grid.MultiSelect=false; grid.BackgroundColor=Color.White; grid.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;
             foreach(string heading in new[]{"From key","To key"}) grid.Columns.Add(new DataGridViewComboBoxColumn {HeaderText=heading,DataSource=KeyChoices(),DisplayMember="Name",ValueMember="Code",FlatStyle=FlatStyle.Flat});
