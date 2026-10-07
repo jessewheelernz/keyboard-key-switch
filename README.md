@@ -18,7 +18,7 @@ Save the executable in a writable folder and double-click it to start. No instal
 
 **Bindings affect every keyboard while the selected keyboard is connected.** The selected keyboard is an activation trigger, not an input filter. Windows' low-level keyboard hook does not identify the source keyboard; this app does not provide per-device remapping.
 
-Open Settings again by double-clicking the tray icon or choosing **Settings...** from its menu. Saved bindings stay active while Settings is open. Edits apply only when you choose **Save and close**; Cancel discards them. Use **Pause remapping** from the tray menu if you want to pause while editing.
+Open Settings again by double-clicking the tray icon or choosing **Settings...** from its menu. Saved bindings stay active while Settings is open. Edits apply only when you choose **Save and close**; Cancel discards them. Use the **Pause remapping / Resume remapping** toggle in Settings to pause or resume at any time. It stays synchronized with the tray menu; closing Settings does not change the pause state.
 
 The **Command / Option preset** swaps left and right Windows/Command with left and right Alt/Option, preserving the original app's behavior. The default activation trigger is an Apple keyboard with USB ID `05AC:024F`. Choosing a detected device saves its specific device path. A disconnected selection stays in the list; if moving ports changes its path, select it again.
 

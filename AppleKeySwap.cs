@@ -15,7 +15,7 @@ static class AppleKeySwap {
     static IntPtr lastForeground;
     static HookProc callback=OnKey;
     static Dictionary<int,int> held=new Dictionary<int,int>();
-    static NotifyIcon tray;
+    static NotifyIcon tray; static ToolStripMenuItem pauseControl;
     static Icon KeyboardIcon() {
         using(var bitmap=new Bitmap(32,32)) {
             using(var g=Graphics.FromImage(bitmap)) {
@@ -115,7 +115,7 @@ static class AppleKeySwap {
             var menu=new ContextMenuStrip();
             menu.Items.Add("Settings...",null,(s,e)=>ShowSettings());
             var pause=new ToolStripMenuItem("Pause remapping") {CheckOnClick=true,Checked=paused};
-            pause.CheckedChanged+=(s,e)=>{paused=pause.Checked; Refresh();}; menu.Items.Add(pause);
+            pauseControl=pause; pause.CheckedChanged+=(s,e)=>SetPaused(pause.Checked); menu.Items.Add(pause);
             menu.Items.Add("Exit and restore normal keys",null,(s,e)=>Application.Exit());
             var keyboardIcon=KeyboardIcon();
             tray=new NotifyIcon { Icon=keyboardIcon, Visible=true, ContextMenuStrip=menu };
@@ -208,11 +208,13 @@ static class AppleKeySwap {
         UnhookWindowsHookEx(previous);
         lastForeground=foreground;
     }
+    static void SetPaused(bool value) { paused=value; if(pauseControl!=null && pauseControl.Checked!=value) pauseControl.Checked=value; Refresh(); }
     static void Refresh() {
         bool connected=SelectedConnected(); bool wanted=!paused && connected && settings.Bindings.Count>0;
         if(!connected) { enabled=false; ReleaseMappedKeys(); physicalDown.Clear(); }
         else if(held.Count==0 && physicalDown.Count==0) enabled=wanted;
-        tray.Text=paused?"Keyboard Key Switch: paused":enabled?"Keyboard Key Switch: remapping":"Keyboard Key Switch: normal";
+        if(window!=null) window.UpdatePauseButton();
+        if(tray!=null) tray.Text=paused?"Keyboard Key Switch: paused":enabled?"Keyboard Key Switch: remapping":"Keyboard Key Switch: normal";
     }
     static IntPtr OnKey(int code,IntPtr message,IntPtr data) {
         if(code>=0) {
@@ -254,7 +256,7 @@ static class AppleKeySwap {
         return true;
     }
     internal sealed class SettingsWindow : Form {
-        ComboBox keyboards=new ComboBox(); DataGridView grid=new DataGridView(); Label status=new Label();
+        Button pauseButton=new Button {AutoSize=true,Height=32}; ComboBox keyboards=new ComboBox(); DataGridView grid=new DataGridView(); Label status=new Label();
         System.Windows.Forms.Timer discovery=new System.Windows.Forms.Timer {Interval=1500}; string inventory="";
         public SettingsWindow() {
             Text="Keyboard Key Switch — Settings"; ClientSize=new Size(780,580); MinimumSize=new Size(690,540);
@@ -270,7 +272,7 @@ static class AppleKeySwap {
             grid.Dock=DockStyle.Fill; grid.AutoGenerateColumns=false; grid.AllowUserToAddRows=false; grid.AllowUserToDeleteRows=false; grid.RowHeadersVisible=false; grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect; grid.MultiSelect=false; grid.BackgroundColor=Color.White; grid.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;
             foreach(string heading in new[]{"From key","To key"}) grid.Columns.Add(new DataGridViewComboBoxColumn {HeaderText=heading,DataSource=KeyChoices(),DisplayMember="Name",ValueMember="Code",FlatStyle=FlatStyle.Flat});
             layout.Controls.Add(grid,0,4);
-            var tools=new FlowLayoutPanel {Dock=DockStyle.Fill};
+            var tools=new FlowLayoutPanel {Dock=DockStyle.Fill}; pauseButton.Click+=(s,e)=>{SetPaused(!paused); UpdatePauseButton();}; UpdatePauseButton(); tools.Controls.Add(pauseButton);
             AddButton(tools,"Add binding",()=>{grid.Rows.Add(65,66);});
             AddButton(tools,"Remove",()=>{if(grid.CurrentRow!=null) grid.Rows.Remove(grid.CurrentRow);});
             AddButton(tools,"Command / Option preset",()=>Fill(Settings.Preset()));
@@ -293,7 +295,9 @@ static class AppleKeySwap {
             for(int i=0;i<keyboards.Items.Count;i++) if(String.Equals(((KeyboardChoice)keyboards.Items[i]).Id,current,StringComparison.OrdinalIgnoreCase)) {keyboards.SelectedIndex=i;break;}
             keyboards.EndUpdate(); UpdateStatus();
         }
+        internal void UpdatePauseButton() {pauseButton.Text=paused?"Resume remapping":"Pause remapping";}
         void UpdateStatus() {
+            UpdatePauseButton();
             var chosen=keyboards.SelectedItem as KeyboardChoice; bool connected=false;
             if(chosen!=null) foreach(var d in Keyboards()) if(Matches(chosen.Id,d.Id)) {connected=true;break;}
             status.Text=connected?"Selected keyboard is connected.":"Selected keyboard is disconnected. Bindings will activate when it reconnects.";
@@ -315,6 +319,8 @@ static class AppleKeySwap {
             using(var form=new SettingsWindow()) {
                 form.Show(); Application.DoEvents();
                 if(form.grid.Rows.Count!=4 || form.keyboards.SelectedItem==null) return false;
+                form.pauseButton.PerformClick(); if(!paused || form.pauseButton.Text!="Resume remapping") return false;
+                form.pauseButton.PerformClick(); if(paused || form.pauseButton.Text!="Pause remapping") return false;
                 form.Fill(new List<Binding>{new Binding(65,66)});
                 if(Convert.ToInt32(form.grid.Rows[0].Cells[0].Value)!=65 || Convert.ToInt32(form.grid.Rows[0].Cells[1].Value)!=66) return false;
                 form.RefreshDevices("disconnected-test-device");
